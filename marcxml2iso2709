@@ -1,0 +1,31 @@
+#!/bin/bash
+# test bibframe 2 marc using an lccn (sru bibframe2a)
+
+##################################################################
+# This protects against not being able to locate the `config` file.
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+source $DIR/config
+
+echo '<?xml version="1.0" encoding="UTF-8"?>' > out/collection.xml
+echo '<collection xmlns="http://www.loc.gov/MARC21/slim">' >> out/collection.xml
+for f in out/*.xml
+do
+    if [ "$f" != "out/collection.xml" ];
+    then
+        cat $f | grep -v '<?xml version="1.0" encoding="UTF-8"?>' >> out/collection.xml
+    fi
+done
+echo '</collection>' >> out/collection.xml
+
+BASHCMD="cat > out/collection.xml; yaz-marcdump -i marcxml -o marc out/collection.xml "
+
+echo "Creating iso2709 file..."
+if [ "$USE_DOCKERWRAPPER" = true ] ;
+then
+    cat out/collection.xml | docker run --rm -i test:basic bash -c "$BASHCMD" > out/collection.mrc
+else
+    cat out/collection.xml | "$BASHCMD" >  out/collection.mrc
+fi
+echo "Output saved: out/collection.mrc"
+exit 0

@@ -1,0 +1,65 @@
+#!/bin/bash
+# test bibframe 2 marc using an lccn (sru bibframe2a)
+
+##################################################################
+# This protects against not being able to locate the `config` file.
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+source $DIR/config
+
+IDTYPE=$1
+IDENTIFIER=$2
+IDENTIFIER=$(echo $IDENTIFIER|sed 's/ //g')
+FILENAME=$IDTYPE\_$IDENTIFIER
+SERIALIZATION=$3
+ACTION=$4
+
+if [ "$SERIALIZATION" == "save" ];
+then
+    ACTION=save
+    SERIALIZATION=""
+fi
+
+echo "Fetching $IDTYPE: $IDENTIFIER."
+if [ "$IDTYPE" == "lccn" ]
+then
+    curl -s "https://lccn.loc.gov/$IDENTIFIER/marcxml" > in/$FILENAME.xml
+    BASHCMD="cat > in/$FILENAME.xml; "
+else
+    curl -Ls "http://lx2.loc.gov:210/LCDB?recordSchema=marcxml&maximumRecords=1&query=bath.id=%27$IDENTIFIER%27" -o in/$FILENAME.xml
+    BASHCMD="cat > in/tmp.xml; \
+        echo '<collection xmlns=\"http://www.loc.gov/MARC21/slim\">' > in/$FILENAME.xml; \
+        xmllint --xpath \"//*[namespace-uri()='http://www.loc.gov/MARC21/slim' and local-name()='record']\" in/tmp.xml >> in/$FILENAME.xml; \
+        echo '</collection>' >> in/$FILENAME.xml; \
+        rm in/tmp.xml; "
+fi
+BASHCMD="$BASHCMD \
+    yaz-record-conv lib/lookups.xml in/$FILENAME.xml > in/$FILENAME.rdf; \
+    xsltproc bibframe2marc/bibframe2marc.xsl in/$FILENAME.rdf"
+
+EXTENSION=xml
+if [ "$SERIALIZATION" == "txt" ] || [ "$SERIALIZATION" == "text" ];
+then
+    BASHCMD="$BASHCMD > out/$FILENAME.xml; xsltproc lib/marcxml2txt.xsl out/$FILENAME.xml"
+    EXTENSION=txt
+fi
+
+echo "Converting from marcxml to bibframe..."
+if [ "$USE_DOCKERWRAPPER" = true ] ;
+then
+    cat in/$FILENAME.xml | docker run --rm -i test:basic bash -c "$BASHCMD" > out/$FILENAME.$EXTENSION
+else
+    cat in/$FILENAME.xml | "$BASHCMD" > out/$FILENAME.$EXTENSION
+fi
+
+if [ "$ACTION" != "save" ] ;
+then
+    echo "Save not requested.  Outputting result."
+    echo 
+    cat out/$FILENAME.$EXTENSION
+    rm out/$FILENAME.$EXTENSION
+else
+    echo "Output saved: out/$FILENAME.$EXTENSION"
+fi
+exit 0
+

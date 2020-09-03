@@ -1,0 +1,10 @@
+#!/bin/bash
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+rm $DIR/../out/*.xml
+rm $DIR/../out/*.rdf
+rm $DIR/../out/*.txt
+rm $DIR/../out/*.mrc
+
+

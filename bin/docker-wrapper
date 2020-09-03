@@ -1,0 +1,4 @@
+#!/bin/bash
+
+ARGS="${@:1}"
+docker run --rm test:basic bash -c "$ARGS"

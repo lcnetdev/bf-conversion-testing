@@ -1,0 +1,6 @@
+[submodule "bibframe2marc"]
+	path = bibframe2marc
+	url = https://github.com/lcnetdev/bibframe2marc.git
+[submodule "marc2bibframe2"]
+	path = marc2bibframe2
+	url = https://github.com/lcnetdev/marc2bibframe2.git
