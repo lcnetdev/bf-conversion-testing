@@ -23,7 +23,7 @@ BASHCMD="cat > out/collection.xml; yaz-marcdump -i marcxml -o marc out/collectio
 echo "Creating iso2709 file..."
 if [ "$USE_DOCKERWRAPPER" = true ] ;
 then
-    cat out/collection.xml | docker run --rm -i test:basic bash -c "$BASHCMD" > out/collection.mrc
+    cat out/collection.xml | docker run --rm -i lcnetdev:bf-conversion-testing bash -c "$BASHCMD" > out/collection.mrc
 else
     cat out/collection.xml | "$BASHCMD" >  out/collection.mrc
 fi

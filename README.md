@@ -30,6 +30,10 @@ cp config.default config
 
 If you are not using Docker, alter the USE_DOCKERWRAPPER value in `config` to false.
 
+To build docker image:
+```bash
+docker build -t lcnetdev:bf-conversion-testing .
+```
 
 ### Running
 
@@ -60,6 +64,19 @@ Examples:
 ./bf2marc bibid 5226 text save  # Will save the output as text
 ./bf2marc bibid 5226 save       # Will save the output as MARC/XML
 ```
+
+### Maintenance
+
+It is possible to generate a lot of files with the main scripts.  Two helper scripts 
+exist for maintenance purposes:
+
+```bash
+./helpers/clean_in              # Will remove all files from the 'in' directory
+./helpers/clean_out             # Will remove all files from the 'out' directory
+```
+
+Docker may also accumulate detritus so be aware of that.
+
 
 ## License
 As a work of the United States government, this project is in the

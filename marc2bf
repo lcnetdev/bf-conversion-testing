@@ -32,7 +32,7 @@ BASHCMD="$BASHCMD yaz-record-conv lib/lookups.xml in/$FILENAME.xml"
 echo "Converting from marcxml to bibframe..."
 if [ "$USE_DOCKERWRAPPER" = true ] ;
 then
-    cat in/$FILENAME.xml | docker run --rm -i test:basic bash -c "$BASHCMD" > out/$FILENAME.rdf
+    cat in/$FILENAME.xml | docker run --rm -i lcnetdev:bf-conversion-testing bash -c "$BASHCMD" > out/$FILENAME.rdf
 else
     cat in/$FILENAME.xml | "$BASHCMD" > out/$FILENAME.rdf
 fi
